@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabelos Cacheados Aleatórios</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        h1 {
+            color: #6a0572; /* Um roxo legal */
+            margin-bottom: 30px;
+        }
+        button {
+            background-color: #ff69b4; /* Rosa choque! */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        button:hover {
+            background-color: #e05aa3; /* Um rosa um pouco mais escuro no hover */
+        }
+        #image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        .image-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 15px;
+        }
+        .image-card img {
+            width: 100%;
+            height: 250px; /* Altura fixa para as imagens */
+            object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+            border-bottom: 1px solid #eee;
+        }
+        .image-card p {
+            font-size: 0.9em;
+            color: #555;
+            padding: 10px;
+            text-align: center;
+            margin: 0;
+        }
+        .loading-message {
+            font-size: 1.2em;
+            color: #888;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cabelos Cacheados Incríveis! 💖</h1>
+    <button id="loadImagesBtn">Mostrar Cabelos Cacheados!</button>
+    <div id="image-container">
+        <!-- As imagens serão carregadas aqui -->
+    </div>
+
+    <script>
+        // ATENÇÃO: Você precisa obter sua própria chave de API do Unsplash!
+        // Visite https://unsplash.com/developers e crie uma conta para obter sua "Access Key".
+        // Substitua 'SUA_CHAVE_DE_API_AQUI' pela chave que você conseguir.
+        const UNSPLASH_ACCESS_KEY = 'SUA_CHAVE_DE_API_AQUI'; 
+
+        const loadImagesBtn = document.getElementById('loadImagesBtn');
+        const imageContainer = document.getElementById('image-container');
+
+        loadImagesBtn.addEventListener('click', fetchCurlyHairImages);
+
+        async function fetchCurlyHairImages() {
+            if (UNSPLASH_ACCESS_KEY === 'SUA_CHAVE_DE_API_AQUI' || !UNSPLASH_ACCESS_KEY) {
+                imageContainer.innerHTML = '<p class="error-message">Por favor, insira sua chave de API do Unsplash no código JavaScript.</p>';
+                return;
+            }
+
+            imageContainer.innerHTML = '<p class="loading-message">Carregando fotos... ⏳</p>';
+            
+            const query = 'curly hair'; // Termo de busca
+            const count = 9; // Quantas imagens queremos carregar
+            const url = `https://api.unsplash.com/photos/random?query=${query}&count=${count}&client_id=${UNSPLASH_ACCESS_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                displayImages(data);
+            } catch (error) {
+                console.error('Erro ao buscar imagens:', error);
+                imageContainer.innerHTML = `<p class="error-message">Ops! Não consegui carregar as fotos. Tente novamente mais tarde. (${error.message})</p>`;
+            }
+        }
+
+        function displayImages(images) {
+            imageContainer.innerHTML = ''; // Limpa o container antes de adicionar novas imagens
+            if (images.length === 0) {
+                imageContainer.innerHTML = '<p class="loading-message">Nenhuma imagem encontrada para "cabelo cacheado".</p>';
+                return;
+            }
+
+            images.forEach(image => {
+                const imageCard = document.createElement('div');
+                imageCard.classList.add('image-card');
+
+                const imgElement = document.createElement('img');
+                imgElement.src = image.urls.regular;
+                imgElement.alt = image.alt_description || 'Cabelo cacheado';
+                imgElement.title = image.alt_description || 'Cabelo cacheado';
+
+                const photographerInfo = document.createElement('p');
+                photographerInfo.innerHTML = `Foto por <a href="${image.user.links.html}?utm_source=SeuAppDeCabelosCacheados&utm_medium=referral" target="_blank">${image.user.name}</a> no <a href="https://unsplash.com/?utm_source=SeuAppDeCabelosCacheados&utm_medium=referral" target="_blank">Unsplash</a>`;
+
+                imageCard.appendChild(imgElement);
+                imageCard.appendChild(photographerInfo);
+                imageContainer.appendChild(imageCard);
+            });
+        }
+
+        // Opcional: Carregar algumas imagens ao carregar a página
+        // window.addEventListener('load', fetchCurlyHairImages); 
+    </script>
+</body>
+</html>
